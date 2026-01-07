@@ -10,7 +10,7 @@ This skill provides Claude with comprehensive knowledge of modern Android develo
 - **Jetpack Compose** patterns and best practices
 - **Multi-module project structure** with convention plugins
 - **Offline-first architecture** with Room and reactive streams
-- **Dependency injection** with Hilt
+- **Dependency injection** with Koin
 - **Comprehensive testing** strategies
 
 ## Installation
@@ -124,7 +124,7 @@ This creates a complete feature module with:
 - API module with navigation definitions
 - Implementation module with Screen, ViewModel, UiState
 - Gradle build files with proper dependencies
-- Hilt dependency injection setup
+- Koin dependency injection setup
 
 ### Templates
 
@@ -136,8 +136,7 @@ Pre-configured templates for common Android project files:
 
 ### ViewModel Pattern
 ```kotlin
-@HiltViewModel
-class MyFeatureViewModel @Inject constructor(
+class MyFeatureViewModel(
     private val repository: MyRepository,
 ) : ViewModel() {
     val uiState: StateFlow<MyFeatureUiState> = repository
@@ -155,7 +154,7 @@ class MyFeatureViewModel @Inject constructor(
 ```kotlin
 @Composable
 internal fun MyFeatureRoute(
-    viewModel: MyFeatureViewModel = hiltViewModel(),
+    viewModel: MyFeatureViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MyFeatureScreen(uiState = uiState)
@@ -168,7 +167,7 @@ interface MyRepository {
     fun getData(): Flow<List<MyModel>>
 }
 
-internal class OfflineFirstMyRepository @Inject constructor(
+internal class OfflineFirstMyRepository(
     private val dao: MyDao,
     private val api: MyNetworkApi,
 ) : MyRepository {
@@ -184,7 +183,7 @@ This skill configures projects with:
 - **Language**: Kotlin
 - **UI**: Jetpack Compose
 - **Architecture**: MVVM with UDF
-- **DI**: Hilt
+- **DI**: Koin
 - **Database**: Room
 - **Network**: Retrofit + Kotlinx Serialization
 - **Async**: Kotlin Coroutines + Flow

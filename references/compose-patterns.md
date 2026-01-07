@@ -23,7 +23,7 @@ internal fun TopicRoute(
     onBackClick: () -> Unit,
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: TopicViewModel = hiltViewModel(),
+    viewModel: TopicViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -62,7 +62,7 @@ internal fun TopicScreen(
 ### Benefits
 - Screen is testable without ViewModel
 - Clear separation of concerns
-- Previews work without Hilt
+- Previews work without Koin
 
 ## State Management
 
@@ -86,13 +86,13 @@ sealed interface TopicUiState {
 ### StateFlow in ViewModel
 
 ```kotlin
-@HiltViewModel
-class TopicViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class TopicViewModel(
     private val topicsRepository: TopicsRepository,
     getUserNewsResourcesUseCase: GetUserNewsResourcesUseCase,
 ) : ViewModel() {
 
+    // For navigation with parameters, use savedStateHandle via Koin
+    private val savedStateHandle: SavedStateHandle = get()
     private val topicId: String = savedStateHandle.toRoute<TopicRoute>().id
 
     val uiState: StateFlow<TopicUiState> = combine(
@@ -122,10 +122,10 @@ class TopicViewModel @Inject constructor(
 
 ```kotlin
 @Composable
-fun TopicRoute(viewModel: TopicViewModel = hiltViewModel()) {
+fun TopicRoute(viewModel: TopicViewModel = koinViewModel()) {
     // Use collectAsStateWithLifecycle for lifecycle-aware collection
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     TopicScreen(uiState = uiState)
 }
 ```
@@ -259,12 +259,16 @@ fun NavGraphBuilder.topicScreen(
     }
 }
 
-// Reading route in ViewModel
-@HiltViewModel
-class TopicViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+// Reading route in ViewModel with Koin
+class TopicViewModel(
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val topicId: String = savedStateHandle.toRoute<TopicRoute>().id
+}
+
+// Koin module declaration
+val topicModule = module {
+    viewModel { TopicViewModel(get()) }
 }
 ```
 

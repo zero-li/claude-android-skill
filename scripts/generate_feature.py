@@ -102,22 +102,17 @@ def generate_viewmodel(feature_name: str, package: str) -> str:
     """Generate ViewModel."""
     pascal = to_pascal_case(feature_name)
     camel = to_camel_case(feature_name)
-    
+
     return f'''package {package}.feature.{feature_name.replace('-', '')}.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
-@HiltViewModel
-class {pascal}ViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class {pascal}ViewModel(
     // TODO: Inject repositories here
 ) : ViewModel() {{
 
@@ -152,7 +147,7 @@ def generate_screen(feature_name: str, package: str) -> str:
     """Generate Compose Screen."""
     pascal = to_pascal_case(feature_name)
     camel = to_camel_case(feature_name)
-    
+
     return f'''package {package}.feature.{feature_name.replace('-', '')}.impl
 
 import androidx.compose.foundation.layout.Box
@@ -170,14 +165,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun {pascal}Route(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: {pascal}ViewModel = hiltViewModel(),
+    viewModel: {pascal}ViewModel = koinViewModel(),
 ) {{
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -296,10 +291,26 @@ android {{
 
 dependencies {{
     api(projects.feature.{feature_name.replace('-', '')}.api)
-    
+
     implementation(projects.core.data)
     implementation(projects.core.ui)
     implementation(projects.core.designsystem)
+}}
+'''
+
+
+def generate_koin_module(feature_name: str, package: str) -> str:
+    """Generate Koin module for DI."""
+    pascal = to_pascal_case(feature_name)
+    camel = to_camel_case(feature_name)
+
+    return f'''package {package}.feature.{feature_name.replace('-', '')}.impl
+
+import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.dsl.module
+
+val {camel}Module = module {{
+    viewModelOf(::{pascal}ViewModel)
 }}
 '''
 
@@ -328,6 +339,7 @@ def generate_feature_module(feature_name: str, package: str, project_path: Path)
     write_file(impl_src / f"{to_pascal_case(feature_name)}ViewModel.kt", generate_viewmodel(feature_name, package))
     write_file(impl_src / f"{to_pascal_case(feature_name)}Screen.kt", generate_screen(feature_name, package))
     write_file(impl_src / f"{to_pascal_case(feature_name)}Navigation.kt", generate_navigation(feature_name, package))
+    write_file(impl_src / f"{to_pascal_case(feature_name)}Module.kt", generate_koin_module(feature_name, package))
     
     print(f"\n✅ Feature module '{feature_name}' generated successfully!")
     print(f"\nNext steps:")
@@ -336,7 +348,9 @@ def generate_feature_module(feature_name: str, package: str, project_path: Path)
     print(f'   include(":feature:{feature_name.replace("-", "")}:impl")')
     print(f"2. Add dependency in app/build.gradle.kts:")
     print(f'   implementation(projects.feature.{feature_name.replace("-", "")}.impl)')
-    print(f"3. Add navigation in NiaNavHost")
+    print(f"3. Add Koin module in your App module:")
+    print(f'   importKoinModules(listOf({to_camel_case(feature_name)}Module))')
+    print(f"4. Add navigation in NiaNavHost")
 
 
 def main():

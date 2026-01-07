@@ -62,7 +62,7 @@ interface TopicsRepository {
 }
 
 // Implementation
-internal class OfflineFirstTopicsRepository @Inject constructor(
+internal class OfflineFirstTopicsRepository(
     private val topicDao: TopicDao,
     private val network: NiaNetworkDataSource,
 ) : TopicsRepository {
@@ -145,9 +145,9 @@ fun NetworkTopic.asEntity() = TopicEntity(
 
 ```kotlin
 // WorkManager handles sync scheduling
-class SyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+class SyncWorker(
+    context: Context,
+    params: WorkerParameters,
     private val newsRepository: NewsRepository,
     private val topicsRepository: TopicsRepository,
 ) : CoroutineWorker(context, params), Synchronizer {
@@ -175,7 +175,7 @@ class SyncWorker @AssistedInject constructor(
 ### Use Case Pattern
 
 ```kotlin
-class GetUserNewsResourcesUseCase @Inject constructor(
+class GetUserNewsResourcesUseCase(
     private val newsRepository: NewsRepository,
     private val userDataRepository: UserDataRepository,
 ) {
@@ -216,8 +216,7 @@ sealed interface ForYouUiState {
 ### ViewModel Pattern
 
 ```kotlin
-@HiltViewModel
-class ForYouViewModel @Inject constructor(
+class ForYouViewModel(
     private val getUserNewsResourcesUseCase: GetUserNewsResourcesUseCase,
     private val userDataRepository: UserDataRepository,
 ) : ViewModel() {
@@ -246,7 +245,7 @@ class ForYouViewModel @Inject constructor(
 internal fun ForYouRoute(
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ForYouViewModel = hiltViewModel(),
+    viewModel: ForYouViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     

@@ -56,7 +56,6 @@ androidxLifecycle = "2.7.0"
 androidxActivity = "1.8.2"
 androidxNavigation = "2.8.0"
 androidxComposeBom = "2024.02.00"
-androidxHiltNavigationCompose = "1.1.0"
 
 # Data
 room = "2.6.1"
@@ -64,7 +63,7 @@ dataStore = "1.0.0"
 protobuf = "3.25.2"
 
 # DI
-hilt = "2.50"
+koin = "3.5.6"
 
 # Networking
 retrofit = "2.9.0"
@@ -98,12 +97,11 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 
 # Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 
-# Hilt
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
+# Koin
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
 
 # Room
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -135,7 +133,7 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+koin = { id = "io.insert-koin.koin", version.ref = "koin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 
@@ -144,7 +142,6 @@ nowinandroid-android-application = { id = "nowinandroid.android.application", ve
 nowinandroid-android-library = { id = "nowinandroid.android.library", version = "unspecified" }
 nowinandroid-android-feature = { id = "nowinandroid.android.feature", version = "unspecified" }
 nowinandroid-android-library-compose = { id = "nowinandroid.android.library.compose", version = "unspecified" }
-nowinandroid-hilt = { id = "nowinandroid.hilt", version = "unspecified" }
 nowinandroid-jvm-library = { id = "nowinandroid.jvm.library", version = "unspecified" }
 ```
 
@@ -187,10 +184,6 @@ gradlePlugin {
         register("androidLibraryCompose") {
             id = "nowinandroid.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
-        }
-        register("hilt") {
-            id = "nowinandroid.hilt"
-            implementationClass = "HiltConventionPlugin"
         }
         register("jvmLibrary") {
             id = "nowinandroid.jvm.library"
@@ -302,7 +295,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             pluginManager.apply {
                 apply("nowinandroid.android.library")
                 apply("nowinandroid.android.library.compose")
-                apply("nowinandroid.hilt")
             }
 
             extensions.configure<LibraryExtension> {
@@ -314,30 +306,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             dependencies {
                 add("implementation", project(":core:ui"))
                 add("implementation", project(":core:designsystem"))
-                add("implementation", libs.findLibrary("androidx-hilt-navigation-compose").get())
+                add("implementation", libs.findLibrary("koin-androidx-compose").get())
                 add("implementation", libs.findLibrary("androidx-lifecycle-runtime-compose").get())
                 add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-compose").get())
-            }
-        }
-    }
-}
-```
-
-### Hilt Plugin
-
-```kotlin
-// HiltConventionPlugin.kt
-class HiltConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) {
-        with(target) {
-            with(pluginManager) {
-                apply("com.google.devtools.ksp")
-                apply("dagger.hilt.android.plugin")
-            }
-
-            dependencies {
-                add("implementation", libs.findLibrary("hilt-android").get())
-                add("ksp", libs.findLibrary("hilt-android-compiler").get())
             }
         }
     }
@@ -353,7 +324,6 @@ class HiltConventionPlugin : Plugin<Project> {
 plugins {
     alias(libs.plugins.nowinandroid.android.application)
     alias(libs.plugins.nowinandroid.android.application.compose)
-    alias(libs.plugins.nowinandroid.hilt)
 }
 
 android {
@@ -390,7 +360,49 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material3.windowSizeClass)
+    implementation(libs.koin.android)
 }
+```
+
+### Koin Setup
+
+在 `app/src/main/kotlin/com/example/app/App.kt` 中初始化 Koin：
+
+```kotlin
+package com.example.app
+
+import android.app.Application
+import com.example.app.di.appModule
+import com.example.feature.topic.impl.topicModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+
+class App : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin {
+            androidLogger(Level.DEBUG)
+            androidContext(this@App)
+            modules(
+                appModule,
+                topicModule,
+            )
+        }
+    }
+}
+```
+
+并在 `AndroidManifest.xml` 中指定 Application 类：
+
+```xml
+<application
+    android:name=".App"
+    ...>
+</application>
 ```
 
 ### Feature Module
@@ -417,7 +429,6 @@ dependencies {
 // core/data/build.gradle.kts
 plugins {
     alias(libs.plugins.nowinandroid.android.library)
-    alias(libs.plugins.nowinandroid.hilt)
 }
 
 android {

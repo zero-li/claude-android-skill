@@ -379,25 +379,27 @@ class TopicScreenTest {
 }
 ```
 
-### Hilt UI Tests
+### Koin UI Tests
 
 ```kotlin
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TopicScreenIntegrationTest {
 
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val composeTestRule = createComposeRule()
 
-    @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<HiltComponentActivity>()
-
-    @Inject
-    lateinit var topicsRepository: TopicsRepository
+    private val koinRule = KoinTestRule()
 
     @Before
     fun setup() {
-        hiltRule.inject()
+        koinRule.startKoin {
+            modules(testModule)
+        }
+    }
+
+    @After
+    fun teardown() {
+        koinRule.stopKoin()
     }
 
     @Test
@@ -466,7 +468,7 @@ class NiaTestRunner : AndroidJUnitRunner() {
         cl: ClassLoader?,
         name: String?,
         context: Context?,
-    ): Application = super.newApplication(cl, HiltTestApplication::class.java.name, context)
+    ): Application = super.newApplication(cl, MyApplication::class.java.name, context)
 }
 ```
 
@@ -486,8 +488,6 @@ dependencies {
     testImplementation(libs.turbine)
 
     androidTestImplementation(libs.androidx.test.ext)
-    androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.android.compiler)
 
     testImplementation(projects.core.testing)
     androidTestImplementation(projects.core.testing)

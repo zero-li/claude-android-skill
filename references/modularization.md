@@ -49,7 +49,7 @@ feature/
 - Screen composables
 - ViewModels
 - UI state classes
-- Hilt modules
+- Koin modules
 - Internal navigation setup
 
 ### Core Modules (`core/`)
@@ -95,7 +95,7 @@ feature/settings/
             ├── SettingsUiState.kt       # State model
             ├── SettingsNavigation.kt    # Route setup
             └── di/
-                └── SettingsModule.kt    # Hilt bindings
+                └── SettingsModule.kt    # Koin bindings
 ```
 
 ### Core Module Structure
@@ -112,7 +112,7 @@ core/data/
     │       ├── model/
     │       │   └── Topic.kt                     # If needed
     │       └── di/
-    │           └── DataModule.kt                # Hilt bindings
+    │           └── DataModule.kt                # Koin bindings
     └── test/kotlin/
         └── com/example/core/data/
             └── repository/
@@ -165,7 +165,6 @@ core:model ───────► (no dependencies - pure Kotlin)
 ```kotlin
 plugins {
     alias(libs.plugins.nowinandroid.android.library)
-    alias(libs.plugins.nowinandroid.hilt)
 }
 
 android {
@@ -217,7 +216,6 @@ dependencies {
 ```kotlin
 plugins {
     alias(libs.plugins.nowinandroid.android.library)
-    alias(libs.plugins.nowinandroid.hilt)
 }
 
 android {

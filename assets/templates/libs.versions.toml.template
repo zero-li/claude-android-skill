@@ -18,13 +18,12 @@ androidxActivity = "1.8.2"
 androidxNavigation = "2.8.0"
 androidxComposeBom = "2024.02.00"
 androidxComposeCompiler = "1.5.10"
-androidxHiltNavigationCompose = "1.1.0"
 androidxRoom = "2.6.1"
 androidxDataStore = "1.0.0"
 androidxWork = "2.9.0"
 
 # DI
-hilt = "2.50"
+koin = "3.5.6"
 
 # Networking
 retrofit = "2.9.0"
@@ -79,12 +78,11 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 
 # Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 
-# Hilt
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
+# Koin
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
 
 # Room
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
@@ -99,8 +97,6 @@ protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-
 # WorkManager
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidxWork" }
 androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "androidxWork" }
-hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version = "1.1.0" }
-hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version = "1.1.0" }
 
 # Networking
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -126,7 +122,7 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+koin = { id = "io.insert-koin.koin", version.ref = "koin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "androidxRoom" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
@@ -138,5 +134,4 @@ nowinandroid-android-library = { id = "nowinandroid.android.library", version = 
 nowinandroid-android-library-compose = { id = "nowinandroid.android.library.compose", version = "unspecified" }
 nowinandroid-android-feature = { id = "nowinandroid.android.feature", version = "unspecified" }
 nowinandroid-android-room = { id = "nowinandroid.android.room", version = "unspecified" }
-nowinandroid-hilt = { id = "nowinandroid.hilt", version = "unspecified" }
 nowinandroid-jvm-library = { id = "nowinandroid.jvm.library", version = "unspecified" }

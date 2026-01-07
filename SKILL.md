@@ -1,6 +1,6 @@
 ---
 name: android-development
-description: Create production-quality Android applications following Google's official architecture guidance and NowInAndroid best practices. Use when building Android apps with Kotlin, Jetpack Compose, MVVM architecture, Hilt dependency injection, Room database, or multi-module projects. Triggers on requests to create Android projects, screens, ViewModels, repositories, feature modules, or when asked about Android architecture patterns.
+description: Create production-quality Android applications following Google's official architecture guidance and NowInAndroid best practices. Use when building Android apps with Kotlin, Jetpack Compose, MVVM architecture, Koin dependency injection, Room database, or multi-module projects. Triggers on requests to create Android projects, screens, ViewModels, repositories, feature modules, or when asked about Android architecture patterns.
 ---
 
 # Android Development
@@ -86,14 +86,13 @@ core/
    - `MyFeatureViewModel.kt` - State holder
    - `MyFeatureUiState.kt` - Sealed interface for states
    - `MyFeatureNavigation.kt` - Navigation setup
-   - `MyFeatureModule.kt` - Hilt DI module
+   - `MyFeatureModule.kt` - Koin DI module
 
 ## Standard File Patterns
 
 ### ViewModel Pattern
 ```kotlin
-@HiltViewModel
-class MyFeatureViewModel @Inject constructor(
+class MyFeatureViewModel(
     private val myRepository: MyRepository,
 ) : ViewModel() {
 
@@ -105,7 +104,7 @@ class MyFeatureViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = MyFeatureUiState.Loading,
         )
-    
+
     fun onAction(action: MyFeatureAction) {
         when (action) {
             is MyFeatureAction.ItemClicked -> handleItemClick(action.id)
@@ -128,7 +127,7 @@ sealed interface MyFeatureUiState {
 @Composable
 internal fun MyFeatureRoute(
     onNavigateToDetail: (String) -> Unit,
-    viewModel: MyFeatureViewModel = hiltViewModel(),
+    viewModel: MyFeatureViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MyFeatureScreen(
@@ -182,13 +181,14 @@ internal class OfflineFirstMyRepository @Inject constructor(
 [versions]
 kotlin = "1.9.x"
 compose-bom = "2024.x.x"
-hilt = "2.48"
+koin = "3.5.x"
 room = "2.6.x"
 coroutines = "1.7.x"
 
 [libraries]
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 ```
 
@@ -196,9 +196,8 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 
 Use convention plugins in `build-logic/` for consistent configuration:
 - `AndroidApplicationConventionPlugin` - App modules
-- `AndroidLibraryConventionPlugin` - Library modules  
+- `AndroidLibraryConventionPlugin` - Library modules
 - `AndroidFeatureConventionPlugin` - Feature modules
 - `AndroidComposeConventionPlugin` - Compose setup
-- `AndroidHiltConventionPlugin` - Hilt setup
 
 See [gradle-setup.md](references/gradle-setup.md) for complete build configuration.
